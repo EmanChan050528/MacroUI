@@ -2,6 +2,8 @@
 
 A small, dark-themed control panel for toggle-style macros on Windows, built with [AutoHotkey v2](https://www.autohotkey.com/). Everything is in one script, so there's nothing else to install.
 
+![MacroUI window showing the Hold Click, Auto Clicker and Hold Keys macros](docs/screenshot.png)
+
 ## Macros
 
 | Macro | Default hotkey | What it does |
@@ -21,7 +23,8 @@ A small, dark-themed control panel for toggle-style macros on Windows, built wit
 - **Toggle a macro:** press its hotkey, or click **Start** / **Stop**. Starting from the button waits 3 seconds first so you can switch to your game or move the mouse. Click again during the countdown to cancel.
 - **Change a hotkey:** click the hotkey box, then press a key or a middle/side mouse button (Mouse 4 / Mouse 5). Hold Ctrl, Alt, Shift or Win to add them. Esc cancels; Backspace or Delete clears the hotkey.
 - **Pick keys to hold:** click the box under **Keys to hold** to open the on-screen keyboard. Click keys to select or deselect them.
-- **Run in the background:** minimize the window and it moves to the system tray. Hotkeys keep working. Click the tray icon to bring it back; right-click it for **Stop all macros** and **Exit**.
+- **Disable hotkeys:** click **Hotkeys on** in the top-right corner to switch all hotkeys off, for example while typing in a game's chat. The keys then work normally in other apps. Running macros keep running, and the **Start** / **Stop** buttons still work. Click it again to turn hotkeys back on.
+- **Run in the background:** minimize the window and it moves to the system tray. Hotkeys keep working. Click the tray icon to bring it back; right-click it for **Stop all macros**, **Disable hotkeys** and **Exit**.
 - **Closing the window** exits the app and releases anything still held.
 
 Settings are saved automatically to `MacroUI.ini` next to the script.

@@ -30,7 +30,8 @@ global Macros := Map(
 for id, m in Macros
     m.active := false, m.countdown := 0, m.ui := {}, m.tick := Tick.Bind(id)
 
-global G := "", CurGui := "", FocusSink := "", NotifyText := ""
+global G := "", CurGui := "", FocusSink := "", NotifyText := "", DisableBtn := ""
+global HotkeysDisabled := false
 global HkBtns := Map()
 global KeyIsDown := Map()
 global Capturing := false
@@ -46,6 +47,7 @@ OnMessage(0x20, WM_SETCURSOR)
 OnMessage(0x201, WM_LBUTTONDOWN)
 OnExit((*) => (StopAll(), 0))
 SetupTray()
+ApplyHotkeysDisabled()
 UpdateTray()
 
 ; ── Macros ──────────────────────────────────────────────────────────────
@@ -217,6 +219,8 @@ HotkeyUp(id, *) => KeyIsDown[id] := false
 
 ; Don't fire hotkeys while you're typing in one of this window's text boxes.
 HotkeysAllowed(*) {
+    if HotkeysDisabled   ; keys pass straight through to other apps
+        return false
     try {
         if WinActive("ahk_id " G.Hwnd)
             return !(G.FocusedCtrl is Gui.Edit)
@@ -333,6 +337,31 @@ LoadSettings() {
     Macros["auto"].btn := ValidButton(IniRead(INI, "Auto", "button", "Left"))
     Macros["auto"].cps := ClampCps(IniRead(INI, "Auto", "cps", 20))
     Macros["keys"].keys := IniRead(INI, "Keys", "keys", "w")
+    global HotkeysDisabled := IniRead(INI, "General", "hotkeysDisabled", 0) = 1
+}
+
+; Turning hotkeys off leaves running macros alone; the Start/Stop buttons and
+; the tray menu still work.
+ToggleHotkeysDisabled(*) {
+    global HotkeysDisabled := !HotkeysDisabled
+    IniWrite(HotkeysDisabled ? 1 : 0, INI, "General", "hotkeysDisabled")
+    ApplyHotkeysDisabled()
+    Notify(HotkeysDisabled ? "Hotkeys disabled" : "Hotkeys enabled", HotkeysDisabled ? C.amber : C.green)
+}
+
+ApplyHotkeysDisabled() {
+    if HotkeysDisabled {
+        DisableBtn.Text := "●  Hotkeys off"
+        DisableBtn.SetColors(C.input, C.inputHover, C.amber)
+        A_TrayMenu.Check("Disable hotkeys")
+    } else {
+        DisableBtn.Text := "●  Hotkeys on"
+        DisableBtn.SetColors(C.input, C.inputHover, C.green)
+        A_TrayMenu.Uncheck("Disable hotkeys")
+    }
+    for id, b in HkBtns
+        b.ctrl.SetFont("c" (HotkeysDisabled ? C.muted : C.text))
+    UpdateTray()
 }
 
 ValidButton(b) => (b = "Left" || b = "Right" || b = "Middle") ? b : "Left"
@@ -533,7 +562,7 @@ KeysSummary(keys, maxLen) {
 
 ; ── GUI ─────────────────────────────────────────────────────────────────
 BuildGui() {
-    global G, CurGui, FocusSink, NotifyText
+    global G, CurGui, FocusSink, NotifyText, DisableBtn
     G := Gui("-MaximizeBox", "MacroUI")
     CurGui := G
     G.BackColor := C.bg
@@ -547,6 +576,8 @@ BuildGui() {
     Font("s9 c" C.muted)
     G.AddText("x22 y52 w220 h18 Background" C.bg, "Toggle macros with hotkeys or buttons.")
     NotifyText := G.AddText("x230 y52 w230 h18 Right Background" C.bg)
+    Font("s9 w600")
+    DisableBtn := Btn("x340 y18 w120 h28", "", ToggleHotkeysDisabled, C.input, C.inputHover)
 
     y := 84
     for id in Order {
@@ -680,6 +711,7 @@ SetupTray() {
     A_TrayMenu.Delete()
     A_TrayMenu.Add("Show MacroUI", ShowFromTray)
     A_TrayMenu.Add("Stop all macros", (*) => StopAll())
+    A_TrayMenu.Add("Disable hotkeys", ToggleHotkeysDisabled)
     A_TrayMenu.Add()
     A_TrayMenu.Add("Exit", (*) => ExitApp())
     A_TrayMenu.Default := "Show MacroUI"
@@ -707,7 +739,7 @@ UpdateTray() {
     n := 0
     for id in Order
         n += Macros[id].active
-    A_IconTip := "MacroUI: " (n ? n " running" : "idle")
+    A_IconTip := "MacroUI: " (n ? n " running" : "idle") (HotkeysDisabled ? ", hotkeys off" : "")
 }
 
 Notify(msg, color := "") {

@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.0] - 2026-10-08
+
+### Added
+
+- **Hotkeys on/off** toggle in the window and the tray menu. Turning hotkeys off lets the keys reach other apps normally, without stopping macros that are already running. The setting is remembered between launches.
+- Screenshot in the README.
+
 ## [1.0.0] - 2026-10-08
 
 ### Added
