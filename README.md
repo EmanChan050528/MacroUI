@@ -32,3 +32,7 @@ Settings are saved automatically to `MacroUI.ini` next to the script.
 - Binding a mouse side button as a hotkey blocks its normal action (like browser Back) while MacroUI is running.
 - Some games with anti-cheat block simulated input.
 - Hotkeys don't fire while you're typing in MacroUI's own speed box.
+
+## License
+
+[MIT](LICENSE)
